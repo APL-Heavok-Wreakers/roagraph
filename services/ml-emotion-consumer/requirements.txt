@@ -1,0 +1,9 @@
+google-cloud-pubsub==2.23.0
+google-cloud-bigquery==3.24.0
+google-cloud-aiplatform==1.52.0
+google-cloud-language==2.13.0
+fastapi==0.111.0
+uvicorn==0.29.0
+emoji==2.11.0
+langdetect==1.0.9
+pydantic==2.7.0
