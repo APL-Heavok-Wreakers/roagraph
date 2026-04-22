@@ -9,12 +9,19 @@ import asyncio, json, random, time, uuid, math
 from datetime import datetime, timezone
 from collections import deque
 from fastapi import FastAPI, WebSocket, WebSocketDisconnect
-from fastapi.responses import HTMLResponse, FileResponse
-from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
+from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
 from ipl_api import get_current_ipl_matches, get_simulated_ipl_match
 
-app = FastAPI(title="RoarGraph Cricket Emotion Demo")
+app = FastAPI(title="RoarGraph Cricket Emotion API")
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "http://localhost:3000", "*"],
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
 
 # Current IPL match context (updated periodically)
 ipl_match = get_simulated_ipl_match()
