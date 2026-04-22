@@ -69,8 +69,9 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
 <body>
 <div class="header">
   <div style="display:flex;align-items:center;gap:16px">
-    <h1>🏏 <span>RoarGraph</span> Emotion Dashboard</h1>
+    <h1>🏏 <span>RoarGraph</span> IPL Live</h1>
     <span class="live-badge">● LIVE</span>
+    <span id="matchName" style="font-size:13px;color:var(--text-dim)">Loading IPL match...</span>
     <span style="font-size:13px;color:var(--text-dim)"><span class="ws-status disconnected" id="wsStatus"></span><span id="wsLabel">Connecting...</span></span>
   </div>
   <div class="match-bar">
@@ -101,8 +102,8 @@ body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overf
   <div class="card">
     <div class="card-title">⚔️ Team Sentiment Split</div>
     <div class="team-split">
-      <div class="team-block a"><div class="team-name">🇮🇳 India</div><div class="team-val" id="teamA">+0.0</div></div>
-      <div class="team-block b"><div class="team-name">🇵🇰 Pakistan</div><div class="team-val" id="teamB">+0.0</div></div>
+      <div class="team-block a"><div class="team-name" id="teamAName">🏏 Team A</div><div class="team-val" id="teamA">+0.0</div><div id="teamAScore" style="font-size:11px;color:var(--text-dim);margin-top:4px"></div></div>
+      <div class="team-block b"><div class="team-name" id="teamBName">🏏 Team B</div><div class="team-val" id="teamB">+0.0</div><div id="teamBScore" style="font-size:11px;color:var(--text-dim);margin-top:4px"></div></div>
     </div>
   </div>
 
@@ -216,6 +217,20 @@ async function pollData() {
 connectWS();
 setInterval(pollData, 3000);
 pollData();
+
+// Fetch IPL match info
+async function pollIPL() {
+  try {
+    const m = await fetch('/ipl-match').then(r=>r.json());
+    document.getElementById('matchName').textContent = m.name || 'IPL 2026';
+    document.getElementById('teamAName').textContent = '🏏 ' + (m.teams_short?.team_a || m.team_a || 'Team A');
+    document.getElementById('teamBName').textContent = '🏏 ' + (m.teams_short?.team_b || m.team_b || 'Team B');
+    if (m.team_a_score) document.getElementById('teamAScore').textContent = m.team_a_score;
+    if (m.team_b_score) document.getElementById('teamBScore').textContent = m.team_b_score;
+  } catch(e) {}
+}
+pollIPL();
+setInterval(pollIPL, 30000);
 </script>
 </body>
 </html>

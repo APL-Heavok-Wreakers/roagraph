@@ -12,8 +12,12 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import HTMLResponse, FileResponse
 from fastapi.staticfiles import StaticFiles
 import uvicorn
+from ipl_api import get_current_ipl_matches, get_simulated_ipl_match
 
-app = FastAPI(title="APL Cricket Emotion Demo")
+app = FastAPI(title="RoarGraph Cricket Emotion Demo")
+
+# Current IPL match context (updated periodically)
+ipl_match = get_simulated_ipl_match()
 
 # ── In-Memory Storage ───────────────────────────────────────────────────────
 emotions_store = deque(maxlen=10000)
@@ -191,6 +195,25 @@ async def broadcast(event_type, data):
 @app.on_event("startup")
 async def startup():
     asyncio.create_task(message_generator())
+    asyncio.create_task(poll_ipl_api())
+
+
+async def poll_ipl_api():
+    """Poll IPL API every 30s for live match data."""
+    global ipl_match
+    while True:
+        try:
+            matches = await get_current_ipl_matches()
+            if matches:
+                # Pick the first live match
+                live = [m for m in matches if m["match_started"] and not m["match_ended"]]
+                if live:
+                    ipl_match = live[0]
+                    match_clock["over"] = ipl_match["current_over"]
+                    match_clock["ball"] = ipl_match["current_ball"]
+        except Exception:
+            pass
+        await asyncio.sleep(30)
 
 
 # ── REST Endpoints ──────────────────────────────────────────────────────────
@@ -257,6 +280,12 @@ async def get_moment_cards(limit: int = 20):
 async def match_state():
     return {**match_clock, "messages_ingested": len(emotions_store),
             "moment_cards_generated": len(moment_cards), "ws_clients": len(connected_clients)}
+
+
+@app.get("/ipl-match")
+async def get_ipl_match():
+    """Get current IPL match context."""
+    return ipl_match
 
 
 # ── WebSocket ───────────────────────────────────────────────────────────────
