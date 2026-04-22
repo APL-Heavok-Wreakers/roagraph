@@ -1,0 +1,221 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>🏏 RoarGraph — Live Cricket Emotion Dashboard</title>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+<style>
+*{margin:0;padding:0;box-sizing:border-box}
+:root{
+  --bg:#0a0a0f;--surface:#12121a;--surface2:#1a1a28;--border:#2a2a3a;
+  --text:#e8e8f0;--text-dim:#8888a0;--accent:#6c5ce7;--accent2:#a29bfe;
+  --joy:#00b894;--euphoria:#fdcb6e;--outrage:#e17055;--anxiety:#e056a0;
+  --devastation:#d63031;--disbelief:#0984e3;--neutral:#636e72;
+  --glow:0 0 20px rgba(108,92,231,0.3);
+}
+body{font-family:'Inter',sans-serif;background:var(--bg);color:var(--text);overflow-x:hidden}
+.header{
+  background:linear-gradient(135deg,#0a0a1a 0%,#1a1035 50%,#0a0a1a 100%);
+  border-bottom:1px solid var(--border);padding:16px 24px;
+  display:flex;align-items:center;justify-content:space-between;
+  position:sticky;top:0;z-index:100;backdrop-filter:blur(20px);
+}
+.header h1{font-size:20px;font-weight:800;letter-spacing:-0.5px}
+.header h1 span{background:linear-gradient(135deg,var(--accent),var(--accent2));-webkit-background-clip:text;-webkit-text-fill-color:transparent}
+.live-badge{background:#e74c3c;color:#fff;font-size:11px;font-weight:700;padding:4px 10px;border-radius:20px;animation:pulse 1.5s infinite}
+@keyframes pulse{0%,100%{opacity:1}50%{opacity:0.5}}
+.match-bar{display:flex;gap:20px;align-items:center;font-size:13px;color:var(--text-dim)}
+.match-bar .stat{display:flex;flex-direction:column;align-items:center}
+.match-bar .stat-val{font-size:18px;font-weight:700;color:var(--text)}
+.grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:16px;padding:20px 24px;max-width:1600px;margin:0 auto}
+.card{background:var(--surface);border:1px solid var(--border);border-radius:16px;padding:20px;transition:all 0.3s}
+.card:hover{border-color:var(--accent);box-shadow:var(--glow)}
+.card-title{font-size:11px;font-weight:600;text-transform:uppercase;letter-spacing:1.5px;color:var(--text-dim);margin-bottom:12px}
+.card.wide{grid-column:span 2}
+.card.full{grid-column:span 3}
+.intensity-meter{height:8px;background:var(--surface2);border-radius:4px;overflow:hidden;margin-top:8px}
+.intensity-fill{height:100%;border-radius:4px;transition:width 0.5s ease,background 0.5s}
+.big-number{font-size:48px;font-weight:900;line-height:1;letter-spacing:-2px}
+.emotion-bars{display:flex;flex-direction:column;gap:8px}
+.emotion-bar{display:flex;align-items:center;gap:10px}
+.emotion-bar .label{width:90px;font-size:12px;font-weight:500;text-transform:capitalize}
+.emotion-bar .bar-bg{flex:1;height:24px;background:var(--surface2);border-radius:6px;overflow:hidden;position:relative}
+.emotion-bar .bar-fill{height:100%;border-radius:6px;transition:width 0.6s ease;display:flex;align-items:center;padding-left:8px;font-size:11px;font-weight:600;color:#fff}
+.city-list{display:flex;flex-direction:column;gap:6px}
+.city-row{display:flex;align-items:center;justify-content:space-between;padding:8px 12px;background:var(--surface2);border-radius:8px;font-size:13px}
+.city-row .city-name{font-weight:600}
+.city-row .city-emotion{font-size:11px;padding:2px 8px;border-radius:10px;font-weight:600}
+.moment-feed{display:flex;flex-direction:column;gap:8px;max-height:300px;overflow-y:auto}
+.moment-item{padding:12px;background:var(--surface2);border-radius:10px;border-left:3px solid var(--accent);animation:slideIn 0.3s ease}
+@keyframes slideIn{from{opacity:0;transform:translateX(-10px)}to{opacity:1;transform:translateX(0)}}
+.moment-item .type{font-size:10px;font-weight:700;text-transform:uppercase;letter-spacing:1px;color:var(--accent2)}
+.moment-item .detail{font-size:13px;margin-top:4px}
+.message-feed{max-height:260px;overflow-y:auto;display:flex;flex-direction:column;gap:4px}
+.msg{padding:6px 10px;border-radius:6px;font-size:12px;background:var(--surface2);animation:slideIn 0.2s ease}
+.msg .src{font-size:10px;font-weight:700;margin-right:6px;text-transform:uppercase}
+.msg .src.twitter{color:#1da1f2}.msg .src.youtube{color:#ff0000}.msg .src.whatsapp{color:#25d366}
+.team-split{display:flex;gap:16px;align-items:center;margin-top:12px}
+.team-block{flex:1;padding:12px;border-radius:10px;text-align:center}
+.team-block.a{background:linear-gradient(135deg,rgba(0,184,148,0.15),rgba(0,184,148,0.05));border:1px solid rgba(0,184,148,0.3)}
+.team-block.b{background:linear-gradient(135deg,rgba(225,112,85,0.15),rgba(225,112,85,0.05));border:1px solid rgba(225,112,85,0.3)}
+.team-block .team-name{font-size:12px;font-weight:600;text-transform:uppercase;letter-spacing:1px}
+.team-block .team-val{font-size:28px;font-weight:800;margin-top:4px}
+.ws-status{width:8px;height:8px;border-radius:50%;display:inline-block;margin-right:6px}
+.ws-status.connected{background:#00b894;box-shadow:0 0 8px #00b894}.ws-status.disconnected{background:#d63031}
+::-webkit-scrollbar{width:4px}::-webkit-scrollbar-track{background:transparent}::-webkit-scrollbar-thumb{background:var(--border);border-radius:2px}
+</style>
+</head>
+<body>
+<div class="header">
+  <div style="display:flex;align-items:center;gap:16px">
+    <h1>🏏 <span>RoarGraph</span> Emotion Dashboard</h1>
+    <span class="live-badge">● LIVE</span>
+    <span style="font-size:13px;color:var(--text-dim)"><span class="ws-status disconnected" id="wsStatus"></span><span id="wsLabel">Connecting...</span></span>
+  </div>
+  <div class="match-bar">
+    <div class="stat"><span class="stat-val" id="matchOver">-</span><span>Over</span></div>
+    <div class="stat"><span class="stat-val" id="matchBall">-</span><span>Ball</span></div>
+    <div class="stat"><span class="stat-val" id="msgCount">-</span><span>Messages</span></div>
+    <div class="stat"><span class="stat-val" id="msgRate">-</span><span>msg/s</span></div>
+    <div class="stat"><span class="stat-val" id="wsClients">-</span><span>Viewers</span></div>
+  </div>
+</div>
+
+<div class="grid">
+  <!-- Global Intensity -->
+  <div class="card">
+    <div class="card-title">🔥 Global Intensity</div>
+    <div class="big-number" id="globalIntensity" style="color:var(--accent2)">0.00</div>
+    <div class="intensity-meter"><div class="intensity-fill" id="intensityBar" style="width:0%;background:var(--accent)"></div></div>
+    <div style="margin-top:12px;font-size:12px;color:var(--text-dim)">Top: <strong id="topEmotion" style="color:var(--text)">—</strong></div>
+  </div>
+
+  <!-- Emotion Distribution -->
+  <div class="card wide">
+    <div class="card-title">📊 Emotion Distribution (Live)</div>
+    <div class="emotion-bars" id="emotionBars"></div>
+  </div>
+
+  <!-- Team Sentiment -->
+  <div class="card">
+    <div class="card-title">⚔️ Team Sentiment Split</div>
+    <div class="team-split">
+      <div class="team-block a"><div class="team-name">🇮🇳 India</div><div class="team-val" id="teamA">+0.0</div></div>
+      <div class="team-block b"><div class="team-name">🇵🇰 Pakistan</div><div class="team-val" id="teamB">+0.0</div></div>
+    </div>
+  </div>
+
+  <!-- City Leaderboard -->
+  <div class="card">
+    <div class="card-title">🏙️ City Intensity Leaderboard</div>
+    <div class="city-list" id="cityList"></div>
+  </div>
+
+  <!-- Moment Cards -->
+  <div class="card wide">
+    <div class="card-title">⚡ Moment Cards (Auto-Generated)</div>
+    <div class="moment-feed" id="momentFeed"><div style="color:var(--text-dim);font-size:13px">Waiting for first spike...</div></div>
+  </div>
+</div>
+
+<script>
+const EMOTION_COLORS = {joy:'#00b894',euphoria:'#fdcb6e',outrage:'#e17055',anxiety:'#e056a0',devastation:'#d63031',disbelief:'#0984e3',neutral:'#636e72'};
+
+let ws;
+function connectWS() {
+  ws = new WebSocket(`ws://${location.host}/ws/live`);
+  ws.onopen = () => {
+    document.getElementById('wsStatus').className = 'ws-status connected';
+    document.getElementById('wsLabel').textContent = 'Connected';
+  };
+  ws.onclose = () => {
+    document.getElementById('wsStatus').className = 'ws-status disconnected';
+    document.getElementById('wsLabel').textContent = 'Reconnecting...';
+    setTimeout(connectWS, 2000);
+  };
+  ws.onmessage = (evt) => {
+    const msg = JSON.parse(evt.data);
+    if (msg.event === 'EMOTION_PULSE') updatePulse(msg.data);
+    if (msg.event === 'SPIKE_ALERT') addMomentCard(msg.data);
+  };
+}
+
+function updatePulse(d) {
+  document.getElementById('globalIntensity').textContent = d.global_intensity.toFixed(2);
+  const pct = Math.round(d.global_intensity * 100);
+  const bar = document.getElementById('intensityBar');
+  bar.style.width = pct + '%';
+  bar.style.background = d.global_intensity > 0.7 ? '#e17055' : d.global_intensity > 0.5 ? '#fdcb6e' : '#6c5ce7';
+  document.getElementById('topEmotion').textContent = d.top_emotion;
+  document.getElementById('topEmotion').style.color = EMOTION_COLORS[d.top_emotion] || '#fff';
+  document.getElementById('matchOver').textContent = d.over;
+  document.getElementById('matchBall').textContent = d.ball;
+  document.getElementById('msgRate').textContent = d.message_rate;
+
+  // Emotion bars
+  const container = document.getElementById('emotionBars');
+  container.innerHTML = '';
+  const sorted = Object.entries(d.distribution).sort((a,b) => b[1]-a[1]);
+  for (const [em, pct] of sorted) {
+    const color = EMOTION_COLORS[em] || '#888';
+    container.innerHTML += `<div class="emotion-bar">
+      <div class="label" style="color:${color}">${em}</div>
+      <div class="bar-bg"><div class="bar-fill" style="width:${Math.round(pct*100)}%;background:${color}">${Math.round(pct*100)}%</div></div>
+    </div>`;
+  }
+}
+
+function addMomentCard(d) {
+  const feed = document.getElementById('momentFeed');
+  if (feed.querySelector('div[style]')) feed.innerHTML = '';
+  const typeColors = {MOMENT_CARD:'#fdcb6e',SPIKE_ALERT:'#e17055',CONTROVERSY:'#e056a0',DEAD_CROWD:'#636e72'};
+  const item = document.createElement('div');
+  item.className = 'moment-item';
+  item.style.borderLeftColor = typeColors[d.trigger_type] || '#6c5ce7';
+  item.innerHTML = `<div class="type" style="color:${typeColors[d.trigger_type]||'#a29bfe'}">${d.trigger_type} — ${d.dominant_emotion}</div>
+    <div class="detail">Spike ${d.spike_multiplier}x above baseline · Intensity ${d.intensity}</div>`;
+  feed.prepend(item);
+  if (feed.children.length > 20) feed.lastChild.remove();
+}
+
+// Polling for city + match state
+async function pollData() {
+  try {
+    const [cities, state] = await Promise.all([
+      fetch('/city-split?top_n=8').then(r=>r.json()),
+      fetch('/match-state').then(r=>r.json())
+    ]);
+    document.getElementById('msgCount').textContent = state.messages_ingested.toLocaleString();
+    document.getElementById('wsClients').textContent = state.ws_clients;
+
+    const list = document.getElementById('cityList');
+    list.innerHTML = '';
+    for (const c of cities.cities.slice(0,8)) {
+      const color = EMOTION_COLORS[c.dominant_emotion] || '#888';
+      list.innerHTML += `<div class="city-row">
+        <span class="city-name">${c.city}</span>
+        <span>🔥 ${c.avg_intensity.toFixed(2)}</span>
+        <span class="city-emotion" style="background:${color}22;color:${color}">${c.dominant_emotion}</span>
+        <span style="color:var(--text-dim)">${c.message_count} msgs</span>
+      </div>`;
+    }
+
+    // Team sentiment from cities
+    const allA = cities.cities.map(c=>c.team_a_sentiment);
+    const allB = cities.cities.map(c=>c.team_b_sentiment);
+    const avgA = allA.reduce((a,b)=>a+b,0)/allA.length||0;
+    const avgB = allB.reduce((a,b)=>a+b,0)/allB.length||0;
+    document.getElementById('teamA').textContent = (avgA>0?'+':'') + avgA.toFixed(2);
+    document.getElementById('teamA').style.color = avgA>0?'#00b894':'#d63031';
+    document.getElementById('teamB').textContent = (avgB>0?'+':'') + avgB.toFixed(2);
+    document.getElementById('teamB').style.color = avgB>0?'#00b894':'#d63031';
+  } catch(e) {}
+}
+
+connectWS();
+setInterval(pollData, 3000);
+pollData();
+</script>
+</body>
+</html>

@@ -1,4 +1,6 @@
-# 🏏 APL — Real-Time Cricket Emotion Analytics Platform
+# 🏏 RoarGraph — Real-Time Cricket Emotion Analytics Platform
+
+> *When the crowd roars, we graph it.*
 
 A GCP-native platform that captures, classifies, and delivers **real-time emotional intelligence** from millions of cricket fans across Twitter/X, YouTube Live Chat, and WhatsApp during live matches.
 
@@ -84,7 +86,7 @@ A GCP-native platform that captures, classifies, and delivers **real-time emotio
 ## Project Structure
 
 ```
-APL/
+RoarGraph/
 ├── terraform/                    # Infrastructure as Code
 │   ├── main.tf                   # Provider config, API enablement
 │   ├── variables.tf              # All configurable parameters
