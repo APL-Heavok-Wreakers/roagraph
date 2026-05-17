@@ -7,10 +7,11 @@ import EmotionStream from '../components/EmotionStream';
 import AIInsightPanel from '../components/AIInsightPanel';
 import MomentPeakCard from '../components/MomentPeakCard';
 import GeoSentimentMap from '../components/GeoSentimentMap';
+import CinematicTransition from '../components/CinematicTransition';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
-  const { insights, peaks, socialFeed, waveform, isWicketEvent } = useDashboardData();
+  const { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent } = useDashboardData();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -30,6 +31,7 @@ export default function Dashboard() {
 
   return (
     <div className="font-body-md text-on-background min-h-screen relative bg-background">
+      <CinematicTransition event={cinematicEvent} />
       <div className="scanline-overlay"></div>
       
       <TopNavbar />

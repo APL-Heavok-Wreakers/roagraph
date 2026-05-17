@@ -23,6 +23,7 @@ export function useDashboardData() {
   // Generate initial waveform data (e.g. 40 bars)
   const [waveform, setWaveform] = useState(Array.from({ length: 40 }, () => Math.random() * 60 + 20));
   const [isWicketEvent, setIsWicketEvent] = useState(false);
+  const [cinematicEvent, setCinematicEvent] = useState(null);
 
   useEffect(() => {
     // Mock websocket updates
@@ -40,7 +41,22 @@ export function useDashboardData() {
       }
     }, 3000);
 
-    return () => clearInterval(interval);
+    // Random cinematic events
+    const cinematicInterval = setInterval(() => {
+      const events = ['WICKET', 'BOUNDARY', 'DRS'];
+      const randomEvent = events[Math.floor(Math.random() * events.length)];
+      setCinematicEvent(randomEvent);
+      
+      // Auto dismiss after 3 seconds
+      setTimeout(() => {
+        setCinematicEvent(null);
+      }, 3000);
+    }, 15000); // trigger a random cinematic event every 15 seconds for demo
+
+    return () => {
+      clearInterval(interval);
+      clearInterval(cinematicInterval);
+    };
   }, []);
 
   useEffect(() => {
@@ -72,5 +88,5 @@ export function useDashboardData() {
     return () => clearInterval(waveInterval);
   }, [isWicketEvent]);
 
-  return { insights, peaks, socialFeed, waveform, isWicketEvent };
+  return { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent };
 }
