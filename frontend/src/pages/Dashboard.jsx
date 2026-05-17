@@ -9,7 +9,7 @@ import MomentPeakCard from '../components/MomentPeakCard';
 import GeoSentimentMap from '../components/GeoSentimentMap';
 import CinematicTransition from '../components/CinematicTransition';
 import AmbientParticles from '../components/AmbientParticles';
-import { useDashboardData } from '../hooks/useDashboardData';
+import { useRealtimeData as useDashboardData } from '../hooks/useRealtimeData';
 
 export default function Dashboard() {
   const { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent, cityData } = useDashboardData();
