@@ -6,7 +6,17 @@ export default function MatchScoreCard() {
   return (
     <div className="flex justify-between items-end">
       <div>
-        <h1 className="font-headline-lg text-primary uppercase tracking-tight">Emotional Flux Analysis</h1>
+        <div className="flex items-center gap-4 mb-2">
+          <h1 className="font-headline-lg text-primary uppercase tracking-tight">Emotional Flux Analysis</h1>
+          <div className="flex items-center gap-2 bg-primary/10 px-3 py-1 rounded-full border border-primary/30">
+            <motion.span 
+              animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
+              transition={{ duration: 1.5, repeat: Infinity }}
+              className="w-2 h-2 rounded-full bg-primary shadow-[0_0_8px_#57f1db]"
+            ></motion.span>
+            <span className="font-label-caps text-[10px] text-primary">AI ENGINE: ACTIVE</span>
+          </div>
+        </div>
         <p className="text-on-surface-variant/60 font-label-caps">Real-time Telemetry Overlay // Session 2</p>
       </div>
       

@@ -1,7 +1,7 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { MotionGlassPanel } from './ui/GlassPanel';
-import { cn } from '../../utils/cn';
+import { cn } from '../utils/cn';
 
 export default function GeoSentimentMap({ cityData = [] }) {
   
@@ -15,7 +15,7 @@ export default function GeoSentimentMap({ cityData = [] }) {
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="rounded-2xl overflow-hidden h-[300px] relative"
+      className="rounded-2xl overflow-hidden flex-1 min-h-[150px] relative"
     >
       <div className="absolute top-4 left-4 z-10 bg-surface-dim/80 px-3 py-1 rounded-full border border-white/10">
         <span className="font-label-caps text-[10px] text-primary">GEOSPATIAL SENTIMENT</span>

@@ -2,7 +2,7 @@ import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { NavButton } from './ui/NavButton';
 import { MotionGlassPanel } from './ui/GlassPanel';
-import { cn } from '../../utils/cn';
+import { cn } from '../utils/cn';
 
 export default function Sidebar({ socialFeed }) {
   const navItems = [

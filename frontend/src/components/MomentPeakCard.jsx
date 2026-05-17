@@ -1,27 +1,27 @@
 import React from 'react';
 import { motion } from 'framer-motion';
 import { GlassPanel } from './ui/GlassPanel';
-import { cn } from '../../utils/cn';
+import { cn } from '../utils/cn';
 
 export default function MomentPeakCard({ peaks }) {
   return (
-    <GlassPanel className="p-6 rounded-2xl flex-1 border-t-4 border-secondary">
+    <GlassPanel className="p-4 rounded-2xl flex-1 border-t-4 border-secondary flex flex-col justify-center">
       <motion.div 
         initial={{ opacity: 0, x: 50 }}
         animate={{ opacity: 1, x: 0 }}
         transition={{ duration: 0.5, delay: 0.4 }}
       >
-        <h2 className="font-label-caps text-on-surface mb-4 flex items-center gap-2">
-          <span className="material-symbols-outlined text-secondary">bolt</span>
+        <h2 className="font-label-caps text-on-surface mb-3 flex items-center gap-2 text-xs">
+          <span className="material-symbols-outlined text-secondary text-sm">bolt</span>
           MOMENT PEAKS
         </h2>
         
-        <div className="space-y-3">
+        <div className="space-y-2">
           {peaks.map((peak, idx) => (
             <motion.div 
               key={idx}
               whileHover={{ scale: 1.02, backgroundColor: "rgba(255,255,255,0.05)" }}
-              className="flex items-center gap-4 p-3 glass-panel rounded-lg transition-colors cursor-pointer"
+              className="flex items-center gap-4 p-2 glass-panel rounded-lg transition-colors cursor-pointer"
             >
               <div className={cn(
                 "w-10 h-10 rounded flex items-center justify-center",

@@ -9,7 +9,7 @@ import MomentPeakCard from '../components/MomentPeakCard';
 import GeoSentimentMap from '../components/GeoSentimentMap';
 import CinematicTransition from '../components/CinematicTransition';
 import AmbientParticles from '../components/AmbientParticles';
-import { useRealtimeData as useDashboardData } from '../hooks/useRealtimeData';
+import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
   const { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent, cityData } = useDashboardData();
@@ -66,26 +66,6 @@ export default function Dashboard() {
         </div>
       </motion.main>
 
-      {/* Floating Action Indicator (Visual only) */}
-      <motion.div
-        initial={{ y: 100, opacity: 0, x: "-50%" }}
-        animate={{ y: 0, opacity: 1, x: "-50%" }}
-        transition={{ duration: 0.8, delay: 1 }}
-        className="fixed bottom-8 left-1/2 px-8 py-4 glass-panel rounded-full border border-primary/30 flex items-center gap-6 z-50 shadow-[0_0_20px_rgba(87,241,219,0.15)]"
-      >
-        <div className="flex items-center gap-2">
-          <motion.span
-            animate={{ scale: [1, 1.2, 1], opacity: [1, 0.5, 1] }}
-            transition={{ duration: 1.5, repeat: Infinity }}
-            className="w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_#57f1db]"
-          ></motion.span>
-          <span className="font-label-caps text-xs">AI ENGINE: ACTIVE</span>
-        </div>
-        <div className="h-4 w-px bg-white/10"></div>
-        <div className="flex items-center gap-2">
-          <span className="font-label-caps text-xs text-on-surface-variant/60">PROCESSING CORES: 128</span>
-        </div>
-      </motion.div>
     </div>
   );
 }
