@@ -88,5 +88,40 @@ export function useDashboardData() {
     return () => clearInterval(waveInterval);
   }, [isWicketEvent]);
 
-  return { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent };
+  // Dynamic City Heatmap Data
+  const [cityData, setCityData] = useState([
+    { id: 'mumbai', name: 'MUMBAI', x: '35%', y: '55%', sentiment: 'EUPHORIC', intensity: 88, type: 'primary' },
+    { id: 'delhi', name: 'DELHI', x: '40%', y: '30%', sentiment: 'TENSE', intensity: 45, type: 'secondary' },
+    { id: 'chennai', name: 'CHENNAI', x: '55%', y: '75%', sentiment: 'FRUSTRATED', intensity: 65, type: 'error' },
+    { id: 'kolkata', name: 'KOLKATA', x: '75%', y: '45%', sentiment: 'EUPHORIC', intensity: 70, type: 'primary' },
+  ]);
+
+  useEffect(() => {
+    const cityInterval = setInterval(() => {
+      setCityData(prev => prev.map(city => {
+        // Random walk for intensity
+        let newIntensity = Math.max(10, Math.min(100, city.intensity + (Math.random() * 20 - 10)));
+        
+        // Occasionally flip sentiment if intensity gets too extreme
+        let newType = city.type;
+        let newSentiment = city.sentiment;
+        if (Math.random() > 0.9) {
+          const types = [
+            { t: 'primary', s: 'EUPHORIC' }, 
+            { t: 'secondary', s: 'TENSE' }, 
+            { t: 'error', s: 'FRUSTRATED' }
+          ];
+          const randomType = types[Math.floor(Math.random() * types.length)];
+          newType = randomType.t;
+          newSentiment = randomType.s;
+        }
+
+        return { ...city, intensity: newIntensity, type: newType, sentiment: newSentiment };
+      }));
+    }, 2000);
+
+    return () => clearInterval(cityInterval);
+  }, []);
+
+  return { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent, cityData };
 }

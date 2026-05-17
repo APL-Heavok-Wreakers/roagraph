@@ -1,8 +1,15 @@
 import React from 'react';
-import { motion } from 'framer-motion';
+import { motion, AnimatePresence } from 'framer-motion';
 import { MotionGlassPanel } from './ui/GlassPanel';
+import { cn } from '../../utils/cn';
 
-export default function GeoSentimentMap() {
+export default function GeoSentimentMap({ cityData = [] }) {
+  
+  // Find the city with the highest intensity to display in the overlay
+  const topCity = cityData.reduce((prev, current) => 
+    (prev.intensity > current.intensity) ? prev : current
+  , cityData[0] || { name: 'MUMBAI', sentiment: 'EUPHORIC', intensity: 88, type: 'primary' });
+
   return (
     <MotionGlassPanel 
       initial={{ opacity: 0, scale: 0.95 }}
@@ -23,28 +30,52 @@ export default function GeoSentimentMap() {
         />
       </div>
 
-      {/* Pulsing City Nodes */}
-      <motion.div className="absolute top-1/2 left-1/4 w-3 h-3 bg-primary rounded-full" animate={{ scale: [1, 1.5, 1], opacity: [1, 0.5, 1] }} transition={{ repeat: Infinity, duration: 2 }}></motion.div>
-      <div className="absolute top-1/2 left-1/4 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_#57f1db]"></div>
-      
-      <motion.div className="absolute top-[55%] left-1/3 w-3 h-3 bg-error rounded-full" animate={{ scale: [1, 2, 1], opacity: [1, 0, 1] }} transition={{ repeat: Infinity, duration: 1.5 }}></motion.div>
-      <div className="absolute top-[55%] left-1/3 w-3 h-3 bg-error rounded-full shadow-[0_0_10px_#ffb4ab]"></div>
-      
-      <motion.div className="absolute top-[70%] left-1/2 w-3 h-3 bg-secondary rounded-full" animate={{ scale: [1, 1.8, 1], opacity: [1, 0.2, 1] }} transition={{ repeat: Infinity, duration: 2.5 }}></motion.div>
-      <div className="absolute top-[70%] left-1/2 w-3 h-3 bg-secondary rounded-full shadow-[0_0_10px_#ffb95f]"></div>
+      {/* Animated Heatmap Nodes */}
+      <AnimatePresence>
+        {cityData.map(city => {
+          // Map intensity to scale (0.8 to 2.5)
+          const scale = 0.8 + (city.intensity / 100) * 1.7;
+          
+          const bgClass = city.type === 'primary' ? 'bg-primary' : city.type === 'error' ? 'bg-error' : 'bg-secondary';
+          const shadowClass = city.type === 'primary' ? 'shadow-[0_0_15px_#57f1db]' : city.type === 'error' ? 'shadow-[0_0_15px_#ffb4ab]' : 'shadow-[0_0_15px_#ffb95f]';
+
+          return (
+            <div key={city.id} className="absolute" style={{ left: city.x, top: city.y, transform: 'translate(-50%, -50%)' }}>
+              {/* Outer pulsing ring */}
+              <motion.div 
+                animate={{ scale: [scale, scale * 1.5, scale], opacity: [0.8, 0, 0.8] }}
+                transition={{ repeat: Infinity, duration: 1.5 + Math.random() }}
+                className={cn("absolute inset-0 rounded-full", bgClass)}
+              />
+              {/* Inner glowing core */}
+              <motion.div 
+                layout
+                animate={{ scale }}
+                transition={{ type: "spring", bounce: 0.4 }}
+                className={cn(
+                  "relative w-3 h-3 rounded-full transition-colors duration-1000", 
+                  bgClass,
+                  shadowClass
+                )}
+              />
+            </div>
+          );
+        })}
+      </AnimatePresence>
 
       {/* Map Overlay Stats */}
-      <div className="absolute bottom-4 left-4 right-4 bg-surface-dim/90 p-3 rounded-lg border border-white/10">
+      <div className="absolute bottom-4 left-4 right-4 bg-surface-dim/90 p-3 rounded-lg border border-white/10 z-10 transition-colors duration-500">
         <div className="flex justify-between items-center text-[10px]">
-          <span className="font-bold">MUMBAI</span>
-          <span className="text-primary">EUPHORIC</span>
+          <span className="font-bold">{topCity.name}</span>
+          <span className={cn("transition-colors duration-500", topCity.type === 'primary' ? 'text-primary' : topCity.type === 'error' ? 'text-error' : 'text-secondary')}>{topCity.sentiment}</span>
         </div>
         <div className="h-1 w-full bg-white/5 mt-1 overflow-hidden rounded-full">
           <motion.div 
+            key={topCity.id + topCity.type} // force re-animate on change
             initial={{ width: 0 }}
-            animate={{ width: "88%" }}
-            transition={{ duration: 1, delay: 1 }}
-            className="h-full bg-primary"
+            animate={{ width: `${topCity.intensity}%` }}
+            transition={{ duration: 1, type: 'spring' }}
+            className={cn("h-full transition-colors duration-500", topCity.type === 'primary' ? 'bg-primary' : topCity.type === 'error' ? 'bg-error' : 'bg-secondary')}
           />
         </div>
       </div>

@@ -11,7 +11,7 @@ import CinematicTransition from '../components/CinematicTransition';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
-  const { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent } = useDashboardData();
+  const { insights, peaks, socialFeed, waveform, isWicketEvent, cinematicEvent, cityData } = useDashboardData();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -59,7 +59,7 @@ export default function Dashboard() {
           <motion.div variants={itemVariants} className="col-span-4 flex flex-col gap-6 overflow-y-auto pr-2 pb-20 scrollbar-hide">
             <AIInsightPanel insights={insights} />
             <MomentPeakCard peaks={peaks} />
-            <GeoSentimentMap />
+            <GeoSentimentMap cityData={cityData} />
           </motion.div>
         </div>
       </motion.main>
