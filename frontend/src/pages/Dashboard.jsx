@@ -8,6 +8,7 @@ import AIInsightPanel from '../components/AIInsightPanel';
 import MomentPeakCard from '../components/MomentPeakCard';
 import GeoSentimentMap from '../components/GeoSentimentMap';
 import CinematicTransition from '../components/CinematicTransition';
+import AmbientParticles from '../components/AmbientParticles';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
@@ -30,9 +31,10 @@ export default function Dashboard() {
   };
 
   return (
-    <div className="font-body-md text-on-background min-h-screen relative bg-background">
+    <div className="font-body-md text-on-background min-h-screen relative bg-background z-0">
+      <AmbientParticles />
       <CinematicTransition event={cinematicEvent} />
-      <div className="scanline-overlay"></div>
+      <div className="scanline-overlay pointer-events-none"></div>
       
       <TopNavbar />
       <Sidebar socialFeed={socialFeed} />
