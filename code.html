@@ -1,0 +1,403 @@
+<!DOCTYPE html>
+
+<html class="dark" lang="en"><head>
+<meta charset="utf-8"/>
+<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+<title>Crowd Pulse | AI Command Center</title>
+<script src="https://cdn.tailwindcss.com?plugins=forms,container-queries"></script>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&amp;display=swap" rel="stylesheet"/>
+<style>
+        body {
+            background-color: #0c1324;
+            background-image: 
+                linear-gradient(rgba(87, 241, 219, 0.03) 1px, transparent 1px),
+                linear-gradient(90deg, rgba(87, 241, 219, 0.03) 1px, transparent 1px);
+            background-size: 40px 40px;
+            overflow: hidden;
+        }
+        .scanline-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(to bottom, transparent 50%, rgba(0, 0, 0, 0.1) 51%);
+            background-size: 100% 4px;
+            pointer-events: none;
+            z-index: 100;
+        }
+        .glass-panel {
+            backdrop-filter: blur(12px);
+            border: 1px solid rgba(255, 255, 255, 0.05);
+            background: rgba(25, 31, 49, 0.6);
+        }
+        .glow-teal { box-shadow: 0 0 15px rgba(87, 241, 219, 0.3); }
+        .glow-red { box-shadow: 0 0 15px rgba(255, 180, 171, 0.3); }
+        .inner-glow { box-shadow: inset 0 0 20px rgba(87, 241, 219, 0.05); }
+    </style>
+<script id="tailwind-config">
+        tailwind.config = {
+          darkMode: "class",
+          theme: {
+            extend: {
+              "colors": {
+                      "surface-variant": "#2e3447",
+                      "on-background": "#dce1fb",
+                      "on-secondary-container": "#5b3800",
+                      "on-error": "#690005",
+                      "surface-bright": "#33394c",
+                      "surface-dim": "#0c1324",
+                      "on-primary-fixed": "#00201c",
+                      "on-secondary": "#472a00",
+                      "secondary-fixed": "#ffddb8",
+                      "on-tertiary-fixed-variant": "#930013",
+                      "surface-container-highest": "#2e3447",
+                      "on-primary-fixed-variant": "#005047",
+                      "on-tertiary": "#68000a",
+                      "primary-fixed-dim": "#3cddc7",
+                      "tertiary": "#ffceca",
+                      "inverse-surface": "#dce1fb",
+                      "on-tertiary-fixed": "#410004",
+                      "primary-fixed": "#62fae3",
+                      "surface-container-low": "#151b2d",
+                      "secondary": "#ffb95f",
+                      "on-secondary-fixed-variant": "#653e00",
+                      "surface-container": "#191f31",
+                      "surface-tint": "#3cddc7",
+                      "primary-container": "#2dd4bf",
+                      "on-surface": "#dce1fb",
+                      "on-surface-variant": "#bacac5",
+                      "error-container": "#93000a",
+                      "primary": "#57f1db",
+                      "surface-container-lowest": "#070d1f",
+                      "error": "#ffb4ab",
+                      "on-primary": "#003731",
+                      "background": "#0c1324",
+                      "surface-container-high": "#23293c",
+                      "on-error-container": "#ffdad6",
+                      "on-secondary-fixed": "#2a1700",
+                      "outline-variant": "#3c4a46",
+                      "on-tertiary-container": "#9e0016",
+                      "tertiary-fixed-dim": "#ffb3ad",
+                      "outline": "#859490",
+                      "tertiary-fixed": "#ffdad7",
+                      "surface": "#0c1324",
+                      "tertiary-container": "#ffa7a0",
+                      "secondary-container": "#ee9800",
+                      "inverse-primary": "#006b5f",
+                      "on-primary-container": "#00574d",
+                      "inverse-on-surface": "#2a3043",
+                      "secondary-fixed-dim": "#ffb95f"
+              },
+              "borderRadius": {
+                      "DEFAULT": "0.125rem",
+                      "lg": "0.25rem",
+                      "xl": "0.5rem",
+                      "full": "0.75rem"
+              },
+              "spacing": {
+                      "unit": "4px",
+                      "container-max": "1440px",
+                      "gutter": "16px",
+                      "margin-mobile": "16px",
+                      "margin-desktop": "32px"
+              },
+              "fontFamily": {
+                      "body-md": ["Space Grotesk"],
+                      "label-caps": ["Space Grotesk"],
+                      "headline-lg": ["Space Grotesk"]
+              },
+              "fontSize": {
+                      "body-md": ["16px", {"lineHeight": "1.6", "letterSpacing": "0em", "fontWeight": "400"}],
+                      "label-caps": ["12px", {"lineHeight": "1", "letterSpacing": "0.15em", "fontWeight": "600"}],
+                      "headline-lg": ["32px", {"lineHeight": "1.2", "letterSpacing": "-0.02em", "fontWeight": "700"}]
+              }
+            },
+          },
+        }
+    </script>
+</head>
+<body class="font-body-md text-on-background min-h-screen">
+<div class="scanline-overlay"></div>
+<!-- Top Navigation Anchor (As per JSON) -->
+<header class="fixed top-0 left-0 w-full z-50 flex justify-between items-center px-gutter h-16 bg-surface-dim/80 backdrop-blur-xl border-b border-white/10 shadow-[0_8px_32px_0_rgba(0,0,0,0.3)]">
+<div class="flex items-center gap-6">
+<span class="font-headline-lg text-primary tracking-tighter uppercase drop-shadow-[0_0_8px_rgba(87,241,219,0.6)]">CROWD PULSE</span>
+<div class="flex gap-4">
+<div class="flex flex-col">
+<span class="font-label-caps text-[10px] text-on-surface-variant/60">MATCH STATUS</span>
+<span class="font-bold text-primary flex items-center gap-2">
+<span class="w-2 h-2 rounded-full bg-error animate-pulse"></span>
+                        LIVE: IND vs AUS
+                    </span>
+</div>
+</div>
+</div>
+<div class="flex items-center gap-8">
+<!-- Emotional Scoreboard (HUD Style) -->
+<div class="flex gap-6 border-x border-white/10 px-8">
+<div class="text-center">
+<span class="block font-label-caps text-[10px] text-on-surface-variant/60">TENSION</span>
+<span class="block font-bold text-secondary">42%</span>
+</div>
+<div class="text-center">
+<span class="block font-label-caps text-[10px] text-on-surface-variant/60">EUPHORIA</span>
+<span class="block font-bold text-primary">87%</span>
+<div class="h-0.5 w-full bg-primary/20 mt-1"><div class="h-full bg-primary w-[87%] shadow-[0_0_8px_#57f1db]"></div></div>
+</div>
+<div class="text-center">
+<span class="block font-label-caps text-[10px] text-on-surface-variant/60">FRUSTRATION</span>
+<span class="block font-bold text-error">12%</span>
+</div>
+<div class="text-center">
+<span class="block font-label-caps text-[10px] text-on-surface-variant/60">DISBELIEF</span>
+<span class="block font-bold text-on-tertiary-container">29%</span>
+</div>
+</div>
+<div class="flex gap-4 items-center">
+<span class="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">analytics</span>
+<span class="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">sensors</span>
+<span class="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">notifications</span>
+<div class="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
+<img alt="User Profile" class="w-full h-full object-cover" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBrXodG7_bvmuqFJuwZSXG8CCEuRqNquByYMVoiPljuXs9rBbqg-G3OA072K62F17M9Ui7gFNg9AzJ8cM_IYCi8FqEvBYSdkmlQZsMHsIf0zukUo_-sxEuorphrrZNU3muTgHhPQOlgJU9y3aVc3PaiKpAdT8MT2euBNo5XGf_QoubLylzyMB77QmN9tDgfZK3XusnojzQxp_306e4kFs77OXFmyTYpCsauH7X6jZmJbRUqfXuImh-Ay226ga2M-gNpfdQzSAygiJ4"/>
+</div>
+</div>
+</div>
+</header>
+<!-- Side Navigation Shell (As per JSON) -->
+<aside class="h-screen w-72 fixed left-0 top-0 bg-surface-container/60 backdrop-blur-2xl border-r border-white/5 shadow-2xl flex flex-col pt-20 pb-8 z-40">
+<div class="px-6 mb-8">
+<span class="font-label-caps text-on-surface tracking-widest block">PAVILION CHATTER</span>
+<span class="text-xs text-on-surface-variant/60 uppercase">Live Social Intelligence</span>
+</div>
+<nav class="flex-1 space-y-1">
+<a class="bg-primary/10 text-primary border-r-2 border-primary flex items-center gap-3 p-4 shadow-[inset_0_0_15px_rgba(87,241,219,0.1)] translate-x-1 transition-transform" href="#">
+<span class="material-symbols-outlined">stream</span>
+<span class="font-label-caps text-label-caps">Global Stream</span>
+</a>
+<a class="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">group</span>
+<span class="font-label-caps text-label-caps">Team Sentiment</span>
+</a>
+<a class="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">psychology</span>
+<span class="font-label-caps text-label-caps">Moment Peaks</span>
+</a>
+<a class="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
+<span class="material-symbols-outlined">insights</span>
+<span class="font-label-caps text-label-caps">Match Intel</span>
+</a>
+</nav>
+<!-- Social Feed Simulation -->
+<div class="px-4 space-y-4 overflow-y-auto max-h-[409px] py-4 border-t border-white/5">
+<div class="glass-panel p-3 rounded-lg text-xs space-y-2 border-l-2 border-primary">
+<div class="flex justify-between">
+<span class="font-bold text-on-surface">@CricketFanatic</span>
+<span class="text-primary">X</span>
+</div>
+<p class="text-on-surface-variant">Kohli's cover drive is just pure therapy for the soul. 87% euphoria in my living room right now! #INDvsAUS</p>
+<span class="bg-primary/20 text-primary px-2 py-0.5 rounded text-[10px] font-bold">VIRAL SURGE</span>
+</div>
+<div class="glass-panel p-3 rounded-lg text-xs space-y-2 border-l-2 border-secondary">
+<div class="flex justify-between">
+<span class="font-bold text-on-surface">Rahul K.</span>
+<span class="text-secondary">WA</span>
+</div>
+<p class="text-on-surface-variant">Check that DRS! I'm holding my breath. Tension is off the charts.</p>
+</div>
+</div>
+<div class="mt-auto px-4 space-y-1">
+<a class="text-on-surface-variant/60 flex items-center gap-3 p-2 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-sm">settings</span>
+<span class="font-label-caps text-[10px]">Settings</span>
+</a>
+<a class="text-on-surface-variant/60 flex items-center gap-3 p-2 hover:text-primary" href="#">
+<span class="material-symbols-outlined text-sm">help</span>
+<span class="font-label-caps text-[10px]">Support</span>
+</a>
+</div>
+</aside>
+<!-- Main Content Canvas -->
+<main class="ml-72 pt-16 h-screen flex flex-col p-6 gap-6 relative overflow-hidden">
+<!-- Dashboard Header / IPL Score -->
+<div class="flex justify-between items-end">
+<div>
+<h1 class="font-headline-lg text-primary uppercase tracking-tight">Emotional Flux Analysis</h1>
+<p class="text-on-surface-variant/60 font-label-caps">Real-time Telemetry Overlay // Session 2</p>
+</div>
+<div class="glass-panel px-6 py-3 rounded-xl flex items-center gap-8 border-t-2 border-primary">
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-label-caps text-on-surface-variant/60 uppercase">India</span>
+<span class="text-2xl font-bold">142/3</span>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-label-caps text-on-surface-variant/60 uppercase">Overs</span>
+<span class="text-2xl font-bold">14.3</span>
+</div>
+<div class="h-8 w-px bg-white/10"></div>
+<div class="flex flex-col items-center">
+<span class="text-[10px] font-label-caps text-on-surface-variant/60 uppercase">Run Rate</span>
+<span class="text-2xl font-bold text-primary">9.79</span>
+</div>
+</div>
+</div>
+<!-- Central Visualization Area -->
+<div class="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
+<!-- Center: Massive Emotion Stream -->
+<div class="col-span-8 flex flex-col gap-6">
+<div class="flex-1 glass-panel rounded-2xl relative overflow-hidden flex flex-col inner-glow">
+<div class="absolute top-4 left-6 z-10">
+<span class="font-label-caps text-primary flex items-center gap-2">
+<span class="material-symbols-outlined text-sm">show_chart</span>
+                            LIVE EMOTION STREAM (SPLINE WAVE)
+                        </span>
+</div>
+<!-- Decorative HUD Elements -->
+<div class="absolute top-0 right-0 p-4 font-mono-data text-[10px] text-on-surface-variant/30 text-right">
+                        COORD: 43.11.23<br/>SIGNAL: OPTIMAL<br/>LATENCY: 12ms
+                    </div>
+<!-- Placeholder for the "Spline Wave" using a stylized background -->
+<div class="flex-1 relative flex items-center justify-center">
+<div class="absolute inset-0 opacity-20" style="background: radial-gradient(circle at 50% 50%, rgba(87, 241, 219, 0.1) 0%, transparent 70%);"></div>
+<!-- Visual representation of the wave using custom shapes -->
+<div class="w-full px-12 space-y-4">
+<div class="h-[200px] w-full flex items-end gap-1">
+<!-- Mimicking segmented ECG style bars -->
+<div class="flex-1 bg-primary/20 h-1/2 relative group hover:bg-primary/40 transition-colors">
+<div class="absolute bottom-0 w-full bg-primary h-[80%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-primary/20 h-2/3 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[40%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-primary/20 h-3/4 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[90%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-primary/20 h-1/2 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[10%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-error/20 h-full relative group">
+<div class="absolute bottom-0 w-full bg-error h-[100%] animate-pulse glow-red"></div>
+<div class="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-error whitespace-nowrap">WICKET PEAK</div>
+</div>
+<div class="flex-1 bg-primary/20 h-1/2 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[30%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-primary/20 h-2/3 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[60%] glow-teal"></div>
+</div>
+<div class="flex-1 bg-primary/20 h-1/2 relative group">
+<div class="absolute bottom-0 w-full bg-primary h-[45%] glow-teal"></div>
+</div>
+</div>
+</div>
+</div>
+<!-- Bottom Wave Metadata -->
+<div class="p-6 border-t border-white/5 grid grid-cols-4 gap-4">
+<div class="glass-panel p-3 rounded-lg border-b border-primary">
+<span class="text-[10px] font-label-caps block text-on-surface-variant/60">AVG PULSE</span>
+<span class="text-xl font-bold">112 BPM</span>
+</div>
+<div class="glass-panel p-3 rounded-lg border-b border-secondary">
+<span class="text-[10px] font-label-caps block text-on-surface-variant/60">VOLATILITY</span>
+<span class="text-xl font-bold text-secondary">HIGH</span>
+</div>
+<div class="glass-panel p-3 rounded-lg border-b border-error">
+<span class="text-[10px] font-label-caps block text-on-surface-variant/60">OUTLIERS</span>
+<span class="text-xl font-bold text-error">12.4%</span>
+</div>
+<div class="glass-panel p-3 rounded-lg border-b border-primary">
+<span class="text-[10px] font-label-caps block text-on-surface-variant/60">SENTIMENT</span>
+<span class="text-xl font-bold text-primary">POSITIVE</span>
+</div>
+</div>
+</div>
+</div>
+<!-- Right Panel: AI Intel & Map -->
+<div class="col-span-4 flex flex-col gap-6 overflow-y-auto pr-2">
+<!-- Section 1: AI Match Intelligence -->
+<div class="glass-panel p-6 rounded-2xl relative overflow-hidden border-t-4 border-primary">
+<div class="flex items-center gap-2 mb-4">
+<span class="material-symbols-outlined text-primary" style="font-variation-settings: 'FILL' 1;">psychology</span>
+<h2 class="font-label-caps text-on-surface">GEMINI INSIGHTS</h2>
+</div>
+<div class="space-y-4">
+<div class="bg-primary/5 p-4 rounded border-l-2 border-primary">
+<p class="text-sm italic text-on-surface-variant">"Crowd confidence dropping rapidly. Historical data suggests high anxiety during the 15th over when facing Starc."</p>
+</div>
+<div class="bg-white/5 p-4 rounded border-l-2 border-secondary">
+<p class="text-sm italic text-on-surface-variant">"Sentiment shift detected: Neutral fans moving towards 'Supportive' as Kohli crosses 50."</p>
+</div>
+</div>
+</div>
+<!-- Section 2: Top Emotional Peaks -->
+<div class="glass-panel p-6 rounded-2xl flex-1 border-t-4 border-secondary">
+<h2 class="font-label-caps text-on-surface mb-4 flex items-center gap-2">
+<span class="material-symbols-outlined text-secondary">bolt</span>
+                        MOMENT PEAKS
+                    </h2>
+<div class="space-y-3">
+<div class="flex items-center gap-4 p-3 glass-panel rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
+<div class="w-10 h-10 rounded bg-primary/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-primary">sports_cricket</span>
+</div>
+<div class="flex-1">
+<span class="text-xs font-bold block">BOUNDARY ALERT</span>
+<span class="text-[10px] text-on-surface-variant/60">Euphoria Peak @ 14:12</span>
+</div>
+<span class="text-primary font-bold">92%</span>
+</div>
+<div class="flex items-center gap-4 p-3 glass-panel rounded-lg hover:bg-white/5 transition-colors cursor-pointer">
+<div class="w-10 h-10 rounded bg-error/20 flex items-center justify-center">
+<span class="material-symbols-outlined text-error">close</span>
+</div>
+<div class="flex-1">
+<span class="text-xs font-bold block">DRS DRAMA</span>
+<span class="text-[10px] text-on-surface-variant/60">Frustration Peak @ 13:55</span>
+</div>
+<span class="text-error font-bold">78%</span>
+</div>
+</div>
+</div>
+<!-- Bottom Right: Glowing India Map -->
+<div class="glass-panel rounded-2xl overflow-hidden h-[300px] relative">
+<div class="absolute top-4 left-4 z-10 bg-surface-dim/80 px-3 py-1 rounded-full border border-white/10">
+<span class="font-label-caps text-[10px] text-primary">GEOSPATIAL SENTIMENT</span>
+</div>
+<!-- Decorative Map Element -->
+<div class="absolute inset-0 grayscale opacity-40 mix-blend-screen overflow-hidden">
+<img class="w-full h-full object-cover" data-alt="A dark, stylized top-down satellite view of the Indian subcontinent at night, showing glowing city lights across the landscape. The aesthetic is high-tech HUD with neon teal grid lines overlaid on the terrain. The lighting is dramatic and cinematic, emphasizing the contrast between the deep black oceanic regions and the vibrant, luminous urban centers." data-location="India" src="https://lh3.googleusercontent.com/aida-public/AB6AXuBo50cMK1Wbza58hXvazzXYvuSbXDvKGcgGwmHnBVMtS2vHO4ZE2bUyMZg60lvgGSONHRKIKu3n9kKw_4_5OTagQ9jRfi_Z3-HSGw5wcduH1P2jJiM_aUg52VyRfyorVgJAhcHND7nZR8lgil7Z8Sv49Z7PMTvsV9lBoxanlcUJF09UBV0SjTG1LMLCdQ4e-cY7E0oVKWRWvIokYZc01L2wA7b4e6sbhaEXXAXdgkDu_0dzIvFOd1FKVVi-3EhyKqMR8SRq2zYAfUI"/>
+</div>
+<!-- Pulsing City Nodes -->
+<div class="absolute top-1/2 left-1/4 w-3 h-3 bg-primary rounded-full animate-ping"></div>
+<div class="absolute top-1/2 left-1/4 w-3 h-3 bg-primary rounded-full shadow-[0_0_10px_#57f1db]"></div>
+<div class="absolute top-[55%] left-1/3 w-3 h-3 bg-error rounded-full animate-ping"></div>
+<div class="absolute top-[55%] left-1/3 w-3 h-3 bg-error rounded-full shadow-[0_0_10px_#ffb4ab]"></div>
+<div class="absolute top-[70%] left-1/2 w-3 h-3 bg-secondary rounded-full animate-ping"></div>
+<div class="absolute top-[70%] left-1/2 w-3 h-3 bg-secondary rounded-full shadow-[0_0_10px_#ffb95f]"></div>
+<!-- Map Overlay Stats -->
+<div class="absolute bottom-4 left-4 right-4 bg-surface-dim/90 p-3 rounded-lg border border-white/10">
+<div class="flex justify-between items-center text-[10px]">
+<span class="font-bold">MUMBAI</span>
+<span class="text-primary">EUPHORIC</span>
+</div>
+<div class="h-1 w-full bg-white/5 mt-1"><div class="h-full bg-primary w-[88%]"></div></div>
+</div>
+</div>
+</div>
+</div>
+</main>
+<!-- Floating Action Indicator (Visual only) -->
+<div class="fixed bottom-8 left-1/2 -translate-x-1/2 px-8 py-4 glass-panel rounded-full border border-primary/30 flex items-center gap-6 z-50">
+<div class="flex items-center gap-2">
+<span class="w-3 h-3 rounded-full bg-primary shadow-[0_0_10px_#57f1db]"></span>
+<span class="font-label-caps text-xs">AI ENGINE: ACTIVE</span>
+</div>
+<div class="h-4 w-px bg-white/10"></div>
+<div class="flex items-center gap-2">
+<span class="font-label-caps text-xs text-on-surface-variant/60">PROCESSING CORES: 128</span>
+</div>
+</div>
+</body></html>
