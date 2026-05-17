@@ -3,17 +3,11 @@ import { motion } from 'framer-motion';
 import { MotionGlassPanel } from './ui/GlassPanel';
 import { WaveBar } from './ui/WaveBar';
 
-export default function EmotionStream() {
-  const waves = [
-    { height: "80%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "40%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "90%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "10%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "100%", colorClass: "bg-error", glowClass: "glow-red", isWicket: true },
-    { height: "30%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "60%", colorClass: "bg-primary", glowClass: "glow-teal" },
-    { height: "45%", colorClass: "bg-primary", glowClass: "glow-teal" },
-  ];
+export default function EmotionStream({ waveform = [], isWicketEvent = false }) {
+  // If no dynamic waveform is provided, provide a fallback pattern
+  const bars = waveform.length > 0 
+    ? waveform 
+    : [80, 40, 90, 10, 100, 30, 60, 45, 80, 40, 90, 10, 100, 30, 60, 45, 80, 40, 90, 10];
 
   return (
     <div className="flex flex-col gap-6 h-full min-h-[400px]">
@@ -34,17 +28,23 @@ export default function EmotionStream() {
         <div className="flex-1 relative flex items-center justify-center mt-12">
           <div className="absolute inset-0 opacity-20" style={{ background: 'radial-gradient(circle at 50% 50%, rgba(87, 241, 219, 0.1) 0%, transparent 70%)' }}></div>
           
-          <div className="w-full px-12 space-y-4 relative z-10 h-[200px] flex items-end gap-1">
-            {waves.map((w, i) => (
-              <WaveBar 
-                key={`wave-${i}`} 
-                height={w.height} 
-                colorClass={w.colorClass} 
-                glowClass={w.glowClass} 
-                delay={i * 0.1}
-                isWicket={w.isWicket}
-              />
-            ))}
+          <div className="w-full px-12 space-y-4 relative z-10 h-[200px] flex items-end gap-[2px]">
+            {bars.map((h, i) => {
+              // Highlight the last few bars heavily if there's a wicket event
+              const isRecentWicket = isWicketEvent && i > bars.length - 10;
+              const isCurrentWicketPeak = isRecentWicket && h > 85;
+              
+              return (
+                <WaveBar 
+                  key={`wave-${i}`} 
+                  height={`${h}%`} 
+                  colorClass={isCurrentWicketPeak ? "bg-error" : "bg-primary"} 
+                  glowClass={isCurrentWicketPeak ? "glow-red" : "glow-teal"} 
+                  delay={0}
+                  isWicket={isCurrentWicketPeak}
+                />
+              );
+            })}
           </div>
         </div>
 

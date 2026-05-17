@@ -20,10 +20,14 @@ export function useDashboardData() {
   const [peaks, setPeaks] = useState(mockPeaks);
   const [socialFeed, setSocialFeed] = useState(mockSocial);
 
+  // Generate initial waveform data (e.g. 40 bars)
+  const [waveform, setWaveform] = useState(Array.from({ length: 40 }, () => Math.random() * 60 + 20));
+  const [isWicketEvent, setIsWicketEvent] = useState(false);
+
   useEffect(() => {
     // Mock websocket updates
     const interval = setInterval(() => {
-      // randomly add a new social message
+      // Social updates
       if (Math.random() > 0.7) {
         const newMessage = {
           id: Date.now(),
@@ -39,5 +43,34 @@ export function useDashboardData() {
     return () => clearInterval(interval);
   }, []);
 
-  return { insights, peaks, socialFeed };
+  useEffect(() => {
+    // Waveform real-time streaming
+    const waveInterval = setInterval(() => {
+      setWaveform(prev => {
+        const newWave = [...prev.slice(1)];
+        // Create an occasional spike
+        const isSpike = Math.random() > 0.95;
+        let newValue = Math.random() * 40 + 20; // base noise
+        
+        if (isSpike) {
+          newValue = 95 + Math.random() * 5; // huge spike
+          setIsWicketEvent(true);
+          setTimeout(() => setIsWicketEvent(false), 2000);
+        } else if (isWicketEvent) {
+          newValue = 70 + Math.random() * 20; // lingering high energy
+        } else {
+          // smooth it a bit based on last value
+          const lastVal = prev[prev.length - 1];
+          newValue = (lastVal + newValue) / 2;
+        }
+        
+        newWave.push(newValue);
+        return newWave;
+      });
+    }, 150); // 150ms tick rate for fast smooth animation
+
+    return () => clearInterval(waveInterval);
+  }, [isWicketEvent]);
+
+  return { insights, peaks, socialFeed, waveform, isWicketEvent };
 }

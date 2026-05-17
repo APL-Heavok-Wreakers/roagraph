@@ -8,9 +8,8 @@ export function WaveBar({ height, colorClass, glowClass, delay = 0, isWicket = f
       isWicket ? "bg-error/20" : "bg-primary/20 hover:bg-primary/40")}
     >
       <motion.div 
-        initial={{ height: 0 }}
         animate={{ height: height }}
-        transition={{ duration: isWicket ? 0.5 : 1, delay: delay, type: "spring", bounce: isWicket ? 0.5 : 0 }}
+        transition={{ duration: 0.15, ease: "linear" }}
         className={cn(
           "absolute bottom-0 w-full rounded-t-sm", 
           colorClass, 
@@ -22,8 +21,8 @@ export function WaveBar({ height, colorClass, glowClass, delay = 0, isWicket = f
         <motion.div 
           initial={{ opacity: 0, y: 10 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ delay: 0.5 }}
-          className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-error whitespace-nowrap"
+          exit={{ opacity: 0 }}
+          className="absolute -top-8 left-1/2 -translate-x-1/2 text-[10px] font-bold text-error whitespace-nowrap z-20"
         >
           WICKET PEAK
         </motion.div>

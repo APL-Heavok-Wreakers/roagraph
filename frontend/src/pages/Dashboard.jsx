@@ -10,7 +10,7 @@ import GeoSentimentMap from '../components/GeoSentimentMap';
 import { useDashboardData } from '../hooks/useDashboardData';
 
 export default function Dashboard() {
-  const { insights, peaks, socialFeed } = useDashboardData();
+  const { insights, peaks, socialFeed, waveform, isWicketEvent } = useDashboardData();
 
   const containerVariants = {
     hidden: { opacity: 0 },
@@ -50,7 +50,7 @@ export default function Dashboard() {
         <div className="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
           {/* Center: Massive Emotion Stream */}
           <motion.div variants={itemVariants} className="col-span-8 h-full">
-            <EmotionStream />
+            <EmotionStream waveform={waveform} isWicketEvent={isWicketEvent} />
           </motion.div>
 
           {/* Right Panel: AI Intel & Map */}
