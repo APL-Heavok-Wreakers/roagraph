@@ -4,12 +4,7 @@ import { GlassPanel } from './ui/GlassPanel';
 
 export default function MatchScoreCard() {
   return (
-    <motion.div 
-      initial={{ opacity: 0, y: -20 }}
-      animate={{ opacity: 1, y: 0 }}
-      transition={{ duration: 0.5, delay: 0.2 }}
-      className="flex justify-between items-end"
-    >
+    <div className="flex justify-between items-end">
       <div>
         <h1 className="font-headline-lg text-primary uppercase tracking-tight">Emotional Flux Analysis</h1>
         <p className="text-on-surface-variant/60 font-label-caps">Real-time Telemetry Overlay // Session 2</p>
@@ -32,13 +27,13 @@ export default function MatchScoreCard() {
             key="runrate"
             initial={{ scale: 1.2, color: "#fff" }}
             animate={{ scale: 1, color: "#57f1db" }}
-            transition={{ duration: 0.5 }}
+            transition={{ duration: 0.5, delay: 0.5 }}
             className="text-2xl font-bold text-primary"
           >
             9.79
           </motion.span>
         </div>
       </GlassPanel>
-    </motion.div>
+    </div>
   );
 }

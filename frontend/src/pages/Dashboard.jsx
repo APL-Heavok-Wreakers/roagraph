@@ -12,6 +12,22 @@ import { useDashboardData } from '../hooks/useDashboardData';
 export default function Dashboard() {
   const { insights, peaks, socialFeed } = useDashboardData();
 
+  const containerVariants = {
+    hidden: { opacity: 0 },
+    show: {
+      opacity: 1,
+      transition: {
+        staggerChildren: 0.15,
+        delayChildren: 0.3
+      }
+    }
+  };
+
+  const itemVariants = {
+    hidden: { opacity: 0, y: 20 },
+    show: { opacity: 1, y: 0, transition: { type: 'spring', stiffness: 100 } }
+  };
+
   return (
     <div className="font-body-md text-on-background min-h-screen relative bg-background">
       <div className="scanline-overlay"></div>
@@ -20,22 +36,31 @@ export default function Dashboard() {
       <Sidebar socialFeed={socialFeed} />
 
       {/* Main Content Canvas */}
-      <main className="ml-72 pt-16 h-screen flex flex-col p-6 gap-6 relative overflow-hidden">
-        <MatchScoreCard />
+      <motion.main 
+        variants={containerVariants}
+        initial="hidden"
+        animate="show"
+        className="ml-72 pt-16 h-screen flex flex-col p-6 gap-6 relative overflow-hidden"
+      >
+        <motion.div variants={itemVariants}>
+          <MatchScoreCard />
+        </motion.div>
 
         {/* Central Visualization Area */}
         <div className="flex-1 grid grid-cols-12 gap-6 overflow-hidden">
           {/* Center: Massive Emotion Stream */}
-          <EmotionStream />
+          <motion.div variants={itemVariants} className="col-span-8 h-full">
+            <EmotionStream />
+          </motion.div>
 
           {/* Right Panel: AI Intel & Map */}
-          <div className="col-span-4 flex flex-col gap-6 overflow-y-auto pr-2 pb-20 scrollbar-hide">
+          <motion.div variants={itemVariants} className="col-span-4 flex flex-col gap-6 overflow-y-auto pr-2 pb-20 scrollbar-hide">
             <AIInsightPanel insights={insights} />
             <MomentPeakCard peaks={peaks} />
             <GeoSentimentMap />
-          </div>
+          </motion.div>
         </div>
-      </main>
+      </motion.main>
 
       {/* Floating Action Indicator (Visual only) */}
       <motion.div 

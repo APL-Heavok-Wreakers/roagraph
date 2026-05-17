@@ -32,14 +32,15 @@ export default function Sidebar({ socialFeed }) {
 
       {/* Social Feed Simulation */}
       <div className="px-4 space-y-4 overflow-y-auto max-h-[409px] py-4 border-t border-white/5 scrollbar-hide">
-        <AnimatePresence>
+        <AnimatePresence mode="popLayout">
           {socialFeed.map((item) => (
             <MotionGlassPanel 
               key={item.id}
+              layout
               initial={{ opacity: 0, x: -50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
-              transition={{ duration: 0.3 }}
+              transition={{ duration: 0.4, type: "spring", bounce: 0.25 }}
               className={cn("p-3 rounded-lg text-xs space-y-2 border-l-2", item.type === 'viral' ? 'border-primary' : 'border-secondary')}
             >
               <div className="flex justify-between">
