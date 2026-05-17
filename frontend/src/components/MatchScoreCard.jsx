@@ -1,5 +1,6 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { GlassPanel } from './ui/GlassPanel';
 
 export default function MatchScoreCard() {
   return (
@@ -14,7 +15,7 @@ export default function MatchScoreCard() {
         <p className="text-on-surface-variant/60 font-label-caps">Real-time Telemetry Overlay // Session 2</p>
       </div>
       
-      <div className="glass-panel px-6 py-3 rounded-xl flex items-center gap-8 border-t-2 border-primary">
+      <GlassPanel className="px-6 py-3 rounded-xl flex items-center gap-8 border-t-2 border-primary bg-transparent backdrop-blur-none border-x-0 border-b-0">
         <div className="flex flex-col items-center">
           <span className="text-[10px] font-label-caps text-on-surface-variant/60 uppercase">India</span>
           <span className="text-2xl font-bold">142/3</span>
@@ -37,7 +38,7 @@ export default function MatchScoreCard() {
             9.79
           </motion.span>
         </div>
-      </div>
+      </GlassPanel>
     </motion.div>
   );
 }

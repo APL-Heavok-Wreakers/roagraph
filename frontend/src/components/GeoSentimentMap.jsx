@@ -1,13 +1,14 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { MotionGlassPanel } from './ui/GlassPanel';
 
 export default function GeoSentimentMap() {
   return (
-    <motion.div 
+    <MotionGlassPanel 
       initial={{ opacity: 0, scale: 0.95 }}
       animate={{ opacity: 1, scale: 1 }}
       transition={{ duration: 0.5, delay: 0.5 }}
-      className="glass-panel rounded-2xl overflow-hidden h-[300px] relative"
+      className="rounded-2xl overflow-hidden h-[300px] relative"
     >
       <div className="absolute top-4 left-4 z-10 bg-surface-dim/80 px-3 py-1 rounded-full border border-white/10">
         <span className="font-label-caps text-[10px] text-primary">GEOSPATIAL SENTIMENT</span>
@@ -47,6 +48,6 @@ export default function GeoSentimentMap() {
           />
         </div>
       </div>
-    </motion.div>
+    </MotionGlassPanel>
   );
 }

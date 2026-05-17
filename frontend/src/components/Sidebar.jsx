@@ -1,7 +1,17 @@
 import React from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
+import { NavButton } from './ui/NavButton';
+import { MotionGlassPanel } from './ui/GlassPanel';
+import { cn } from '../../utils/cn';
 
 export default function Sidebar({ socialFeed }) {
+  const navItems = [
+    { icon: "stream", label: "Global Stream", active: true },
+    { icon: "group", label: "Team Sentiment" },
+    { icon: "psychology", label: "Moment Peaks" },
+    { icon: "insights", label: "Match Intel" },
+  ];
+
   return (
     <motion.aside 
       initial={{ x: -300 }}
@@ -15,35 +25,22 @@ export default function Sidebar({ socialFeed }) {
       </div>
 
       <nav className="flex-1 space-y-1">
-        <a className="bg-primary/10 text-primary border-r-2 border-primary flex items-center gap-3 p-4 shadow-[inset_0_0_15px_rgba(87,241,219,0.1)] translate-x-1 transition-transform" href="#">
-          <span className="material-symbols-outlined">stream</span>
-          <span className="font-label-caps text-label-caps">Global Stream</span>
-        </a>
-        <a className="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
-          <span className="material-symbols-outlined">group</span>
-          <span className="font-label-caps text-label-caps">Team Sentiment</span>
-        </a>
-        <a className="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
-          <span className="material-symbols-outlined">psychology</span>
-          <span className="font-label-caps text-label-caps">Moment Peaks</span>
-        </a>
-        <a className="text-on-surface-variant/60 flex items-center gap-3 p-4 hover:bg-white/5 hover:text-on-surface transition-colors" href="#">
-          <span className="material-symbols-outlined">insights</span>
-          <span className="font-label-caps text-label-caps">Match Intel</span>
-        </a>
+        {navItems.map((item, idx) => (
+          <NavButton key={idx} icon={item.icon} label={item.label} active={item.active} />
+        ))}
       </nav>
 
       {/* Social Feed Simulation */}
       <div className="px-4 space-y-4 overflow-y-auto max-h-[409px] py-4 border-t border-white/5 scrollbar-hide">
         <AnimatePresence>
           {socialFeed.map((item) => (
-            <motion.div 
+            <MotionGlassPanel 
               key={item.id}
               initial={{ opacity: 0, x: -50, scale: 0.9 }}
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ duration: 0.3 }}
-              className={`glass-panel p-3 rounded-lg text-xs space-y-2 border-l-2 ${item.type === 'viral' ? 'border-primary' : 'border-secondary'}`}
+              className={cn("p-3 rounded-lg text-xs space-y-2 border-l-2", item.type === 'viral' ? 'border-primary' : 'border-secondary')}
             >
               <div className="flex justify-between">
                 <span className="font-bold text-on-surface">{item.author}</span>
@@ -53,20 +50,14 @@ export default function Sidebar({ socialFeed }) {
               {item.type === 'viral' && (
                 <span className="bg-primary/20 text-primary px-2 py-0.5 rounded text-[10px] font-bold">VIRAL SURGE</span>
               )}
-            </motion.div>
+            </MotionGlassPanel>
           ))}
         </AnimatePresence>
       </div>
 
       <div className="mt-auto px-4 space-y-1">
-        <a className="text-on-surface-variant/60 flex items-center gap-3 p-2 hover:text-primary transition-colors" href="#">
-          <span className="material-symbols-outlined text-sm">settings</span>
-          <span className="font-label-caps text-[10px]">Settings</span>
-        </a>
-        <a className="text-on-surface-variant/60 flex items-center gap-3 p-2 hover:text-primary transition-colors" href="#">
-          <span className="material-symbols-outlined text-sm">help</span>
-          <span className="font-label-caps text-[10px]">Support</span>
-        </a>
+        <NavButton icon="settings" label="Settings" className="p-2 text-[10px] [&>span:first-child]:text-sm" />
+        <NavButton icon="help" label="Support" className="p-2 text-[10px] [&>span:first-child]:text-sm" />
       </div>
     </motion.aside>
   );

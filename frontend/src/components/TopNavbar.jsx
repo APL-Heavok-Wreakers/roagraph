@@ -1,5 +1,7 @@
 import React from 'react';
 import { motion } from 'framer-motion';
+import { StatBox } from './ui/StatBox';
+import { IconButton } from './ui/IconButton';
 
 export default function TopNavbar() {
   return (
@@ -30,36 +32,24 @@ export default function TopNavbar() {
 
       <div className="flex items-center gap-8">
         <div className="flex gap-6 border-x border-white/10 px-8">
-          <div className="text-center">
-            <span className="block font-label-caps text-[10px] text-on-surface-variant/60">TENSION</span>
-            <span className="block font-bold text-secondary">42%</span>
-          </div>
-          <div className="text-center w-24">
-            <span className="block font-label-caps text-[10px] text-on-surface-variant/60">EUPHORIA</span>
-            <span className="block font-bold text-primary">87%</span>
-            <div className="h-0.5 w-full bg-primary/20 mt-1 rounded-full overflow-hidden">
-              <motion.div 
-                initial={{ width: 0 }}
-                animate={{ width: "87%" }}
-                transition={{ duration: 1, ease: "easeOut" }}
-                className="h-full bg-primary shadow-[0_0_8px_#57f1db]"
-              />
-            </div>
-          </div>
-          <div className="text-center">
-            <span className="block font-label-caps text-[10px] text-on-surface-variant/60">FRUSTRATION</span>
-            <span className="block font-bold text-error">12%</span>
-          </div>
-          <div className="text-center">
-            <span className="block font-label-caps text-[10px] text-on-surface-variant/60">DISBELIEF</span>
-            <span className="block font-bold text-on-tertiary-container">29%</span>
-          </div>
+          <StatBox label="TENSION" value="42%" valueClassName="text-secondary" />
+          <StatBox 
+            label="EUPHORIA" 
+            value="87%" 
+            valueClassName="text-primary" 
+            className="w-24"
+            withBar 
+            barPercent={87}
+            barClassName="bg-primary shadow-[0_0_8px_#57f1db]" 
+          />
+          <StatBox label="FRUSTRATION" value="12%" valueClassName="text-error" />
+          <StatBox label="DISBELIEF" value="29%" valueClassName="text-on-tertiary-container" />
         </div>
 
         <div className="flex gap-4 items-center">
-          <motion.span whileHover={{ scale: 1.2, rotate: 10 }} className="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">analytics</motion.span>
-          <motion.span whileHover={{ scale: 1.2, rotate: 10 }} className="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">sensors</motion.span>
-          <motion.span whileHover={{ scale: 1.2, rotate: 10 }} className="material-symbols-outlined text-primary hover:text-white transition-colors cursor-pointer">notifications</motion.span>
+          <IconButton icon="analytics" className="text-primary hover:text-white" />
+          <IconButton icon="sensors" className="text-primary hover:text-white" />
+          <IconButton icon="notifications" className="text-primary hover:text-white" />
           
           <div className="w-8 h-8 rounded-full overflow-hidden border border-primary/30">
             <img 
