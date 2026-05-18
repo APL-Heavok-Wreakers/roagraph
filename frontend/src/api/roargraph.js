@@ -1,55 +1,112 @@
 /**
- * roargraph.js — Real API connector
- * Replaces mockWebSocket.js for production use.
+ * roargraph.js — Live API connector
  * Connects to the RoarGraph backend on http://localhost:8000
+ * Proxied via /api (see vite.config.js → proxy → /api → http://localhost:8000)
+ *
+ * All fetches include:
+ *   - Error handling (throws with a clear message on HTTP error)
+ *   - AbortSignal timeout so a stalled server never hangs the UI
  */
 
-const BASE = '/api'; // proxied to http://localhost:8000 via vite.config.js
+const BASE = '/api';                        // proxied to http://localhost:8000
+const TIMEOUT_MS = 8000;                    // 8 s per request
 
-// ── REST Endpoints ──────────────────────────────────────────────────────────
+/** Thin fetch wrapper with timeout + HTTP-error surfacing. */
+async function apiFetch(path) {
+  const controller = new AbortController();
+  const timer = setTimeout(() => controller.abort(), TIMEOUT_MS);
+  try {
+    const res = await fetch(`${BASE}${path}`, { signal: controller.signal });
+    if (!res.ok) throw new Error(`HTTP ${res.status} from ${path}`);
+    return res.json();
+  } catch (err) {
+    if (err.name === 'AbortError') throw new Error(`Timeout fetching ${path}`);
+    throw err;
+  } finally {
+    clearTimeout(timer);
+  }
+}
 
+// ── REST Endpoints ────────────────────────────────────────────────────────────
+
+/**
+ * Emotion distribution over a rolling time window.
+ * @param {string} window  e.g. '60s', '300s'
+ */
 export async function fetchLiveEmotions(window = '60s') {
-  const res = await fetch(`${BASE}/live-emotions?window=${window}`);
-  return res.json();
+  return apiFetch(`/live-emotions?window=${window}`);
 }
 
+/**
+ * City-level emotion intensity leaderboard.
+ * @param {number} topN  max cities to return
+ */
 export async function fetchCitySplit(topN = 8) {
-  const res = await fetch(`${BASE}/city-split?top_n=${topN}`);
-  return res.json();
+  return apiFetch(`/city-split?top_n=${topN}`);
 }
 
+/**
+ * Emotion summary for a specific over.
+ * @param {number} over
+ * @param {number} innings
+ */
 export async function fetchOverSummary(over, innings = 1) {
-  const res = await fetch(`${BASE}/over-summary/${over}?innings=${innings}`);
-  return res.json();
+  return apiFetch(`/over-summary/${over}?innings=${innings}`);
 }
 
+/**
+ * Recent moment/spike cards.
+ * @param {number} limit
+ */
 export async function fetchMomentCards(limit = 20) {
-  const res = await fetch(`${BASE}/moment-cards?limit=${limit}`);
-  return res.json();
+  return apiFetch(`/moment-cards?limit=${limit}`);
 }
 
+/**
+ * Match state: over, ball, message count, viewer count.
+ */
 export async function fetchMatchState() {
-  const res = await fetch(`${BASE}/match-state`);
-  return res.json();
+  return apiFetch('/match-state');
 }
 
+/**
+ * Current IPL match context (teams, scores, venue).
+ * Source: live CricAPI if CRICKET_API_KEY is set, else simulated.
+ */
 export async function fetchIPLMatch() {
-  const res = await fetch(`${BASE}/ipl-match`);
-  return res.json();
+  return apiFetch('/ipl-match');
 }
 
-// ── WebSocket ───────────────────────────────────────────────────────────────
+/**
+ * Latest ball-by-ball commentary (last 20 balls).
+ * Returns { balls: [...], source: 'live' | 'synthetic' }
+ */
+export async function fetchCommentary() {
+  return apiFetch('/commentary');
+}
 
+// ── WebSocket ─────────────────────────────────────────────────────────────────
+
+/**
+ * Create a managed WebSocket connection to /ws/live with auto-reconnect.
+ *
+ * @param {(msg: object) => void}  onMessage     called with parsed JSON events
+ * @param {() => void}             onConnect     called on successful open
+ * @param {() => void}             onDisconnect  called on close / before reconnect
+ * @returns {{ close: () => void, send: (data: object) => void }}
+ */
 export function createWebSocket(onMessage, onConnect, onDisconnect) {
   let ws;
   let reconnectTimer;
+  let closed = false;            // tracks intentional close
 
   function connect() {
+    if (closed) return;
     const proto = location.protocol === 'https:' ? 'wss' : 'ws';
     ws = new WebSocket(`${proto}://${location.host}/ws/live`);
 
     ws.onopen = () => {
-      console.log('[RoarGraph] WebSocket connected');
+      console.info('[RoarGraph] WebSocket connected');
       onConnect?.();
     };
 
@@ -57,7 +114,8 @@ export function createWebSocket(onMessage, onConnect, onDisconnect) {
       try {
         const msg = JSON.parse(evt.data);
         onMessage(msg);
-        // Also fire friend's event bus format for compatibility
+
+        // Mirror events to the global event bus for optional legacy listeners
         if (msg.event === 'EMOTION_PULSE') {
           window.dispatchEvent(new CustomEvent('ws-live-emotions', { detail: msg.data }));
         }
@@ -70,9 +128,9 @@ export function createWebSocket(onMessage, onConnect, onDisconnect) {
     };
 
     ws.onclose = () => {
-      console.warn('[RoarGraph] WebSocket closed, reconnecting in 2s...');
+      console.warn('[RoarGraph] WebSocket closed — reconnecting in 2 s…');
       onDisconnect?.();
-      reconnectTimer = setTimeout(connect, 2000);
+      if (!closed) reconnectTimer = setTimeout(connect, 2000);
     };
 
     ws.onerror = () => ws.close();
@@ -82,6 +140,7 @@ export function createWebSocket(onMessage, onConnect, onDisconnect) {
 
   return {
     close: () => {
+      closed = true;
       clearTimeout(reconnectTimer);
       ws?.close();
     },
