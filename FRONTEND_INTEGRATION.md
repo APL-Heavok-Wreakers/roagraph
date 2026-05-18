@@ -1,4 +1,4 @@
-# 🔌 RoarGraph Frontend Integration Guide
+# 🔌 RoarGraph Frontend Integration Guide 
 
 > **For the frontend developer** — everything you need to connect to the backend.
 
