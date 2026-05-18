@@ -1,0 +1,144 @@
+{
+  "displayName": "Cricket Emotion Platform — War Room Dashboard",
+  "description": "5 critical metrics for live match monitoring",
+  "dashboardFilters": [],
+  "mosaicLayout": {
+    "tiles": [
+      {
+        "width": 12,
+        "height": 4,
+        "widget": {
+          "title": "1. End-to-End Latency (P95) — Target: <3s",
+          "scorecard": {
+            "timeSeriesQuery": {
+              "timeSeriesFilter": {
+                "filter": "metric.type=\"custom.googleapis.com/emotion_pipeline/e2e_latency_p95\"",
+                "aggregation": {
+                  "alignmentPeriod": "60s",
+                  "perSeriesAligner": "ALIGN_PERCENTILE_95"
+                }
+              }
+            },
+            "thresholds": [
+              { "value": 3.0, "color": "RED", "direction": "ABOVE" },
+              { "value": 2.0, "color": "YELLOW", "direction": "ABOVE" }
+            ]
+          }
+        }
+      },
+      {
+        "xPos": 12,
+        "width": 12,
+        "height": 4,
+        "widget": {
+          "title": "2. Pub/Sub Unacked Messages (Backpressure Indicator)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"pubsub.googleapis.com/subscription/num_undelivered_messages\" AND resource.label.subscription_id=monitoring.regex.full_match(\"ml-consumer-.*\")",
+                    "aggregation": {
+                      "alignmentPeriod": "10s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    }
+                  }
+                },
+                "plotType": "LINE"
+              }
+            ],
+            "yAxis": { "label": "Unacked Messages" }
+          }
+        }
+      },
+      {
+        "yPos": 4,
+        "width": 12,
+        "height": 4,
+        "widget": {
+          "title": "3. Gemini API Error Rate (429s = Quota Saturation)",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"custom.googleapis.com/emotion_pipeline/gemini_429_rate\"",
+                    "aggregation": {
+                      "alignmentPeriod": "30s",
+                      "perSeriesAligner": "ALIGN_RATE"
+                    }
+                  }
+                },
+                "plotType": "LINE"
+              }
+            ],
+            "yAxis": { "label": "429 Errors/sec" }
+          }
+        }
+      },
+      {
+        "xPos": 12,
+        "yPos": 4,
+        "width": 12,
+        "height": 4,
+        "widget": {
+          "title": "4. WebSocket Connections & Drop Rate",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"custom.googleapis.com/emotion_pipeline/ws_connections\"",
+                    "aggregation": {
+                      "alignmentPeriod": "10s",
+                      "perSeriesAligner": "ALIGN_MEAN"
+                    }
+                  }
+                },
+                "plotType": "LINE"
+              },
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"custom.googleapis.com/emotion_pipeline/ws_drop_rate\"",
+                    "aggregation": {
+                      "alignmentPeriod": "10s",
+                      "perSeriesAligner": "ALIGN_RATE"
+                    }
+                  }
+                },
+                "plotType": "LINE"
+              }
+            ],
+            "yAxis": { "label": "Count" }
+          }
+        }
+      },
+      {
+        "yPos": 8,
+        "width": 24,
+        "height": 4,
+        "widget": {
+          "title": "5. BigQuery Streaming Insert Failures",
+          "xyChart": {
+            "dataSets": [
+              {
+                "timeSeriesQuery": {
+                  "timeSeriesFilter": {
+                    "filter": "metric.type=\"bigquery.googleapis.com/storage/inserted_row_count\" AND resource.label.dataset_id=\"cricket_emotions\"",
+                    "aggregation": {
+                      "alignmentPeriod": "10s",
+                      "perSeriesAligner": "ALIGN_RATE"
+                    }
+                  }
+                },
+                "plotType": "STACKED_BAR"
+              }
+            ],
+            "yAxis": { "label": "Rows/sec" }
+          }
+        }
+      }
+    ]
+  }
+}

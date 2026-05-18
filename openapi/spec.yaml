@@ -1,0 +1,216 @@
+openapi: 3.0.3
+info:
+  title: Cricket Emotion Analytics API
+  description: Real-time emotion intelligence for live cricket matches
+  version: 1.0.0
+  contact:
+    name: APL Platform Team
+
+servers:
+  - url: https://api-server-xxxxx.run.app
+    description: Production (Cloud Run)
+
+security:
+  - bearerAuth: []
+
+paths:
+  /live-emotions:
+    get:
+      operationId: getLiveEmotions
+      summary: Get live emotion distribution and time-series
+      parameters:
+        - name: match_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: window
+          in: query
+          schema: { type: string, default: "60s", example: "60s" }
+        - name: source
+          in: query
+          description: Comma-separated source filter
+          schema: { type: string, example: "twitter,youtube" }
+      responses:
+        "200":
+          description: Emotion distribution and time-series
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  distribution:
+                    type: object
+                    additionalProperties: { type: number }
+                    example: { joy: 0.35, euphoria: 0.25, outrage: 0.15, anxiety: 0.1, neutral: 0.15 }
+                  time_series:
+                    type: array
+                    items:
+                      type: object
+                      properties:
+                        timestamp: { type: string, format: date-time }
+                        emotion: { type: string }
+                        count: { type: integer }
+                        avg_intensity: { type: number }
+                  window: { type: string }
+
+  /over-summary/{over_number}:
+    get:
+      operationId: getOverSummary
+      summary: Get emotion summary for a specific over
+      parameters:
+        - name: over_number
+          in: path
+          required: true
+          schema: { type: integer }
+        - name: match_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: innings
+          in: query
+          schema: { type: integer, default: 1 }
+      responses:
+        "200":
+          description: Over summary with emotion breakdown
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/OverSummary"
+        "404":
+          description: No data for this over yet
+
+  /city-split:
+    get:
+      operationId: getCitySplit
+      summary: Get top cities by emotion intensity for map rendering
+      parameters:
+        - name: match_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: top_n
+          in: query
+          schema: { type: integer, default: 10 }
+      responses:
+        "200":
+          description: City emotion breakdown with coordinates
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cities:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/CityEmotion"
+                  count: { type: integer }
+
+  /moment-cards:
+    get:
+      operationId: getMomentCards
+      summary: Get moment cards with cursor-based pagination
+      parameters:
+        - name: match_id
+          in: query
+          required: true
+          schema: { type: string }
+        - name: cursor
+          in: query
+          schema: { type: string }
+        - name: emotion
+          in: query
+          schema: { type: string }
+        - name: min_intensity
+          in: query
+          schema: { type: number, default: 0.0 }
+        - name: limit
+          in: query
+          schema: { type: integer, default: 20 }
+      responses:
+        "200":
+          description: Paginated moment cards
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  cards:
+                    type: array
+                    items:
+                      $ref: "#/components/schemas/MomentCard"
+                  next_cursor: { type: string, nullable: true }
+
+  /health:
+    get:
+      operationId: healthCheck
+      summary: Service health check
+      security: []
+      responses:
+        "200":
+          description: Service is healthy
+
+components:
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+
+  schemas:
+    OverSummary:
+      type: object
+      properties:
+        match_id: { type: string }
+        innings: { type: integer }
+        over_number: { type: integer }
+        message_count: { type: integer }
+        avg_intensity: { type: number }
+        peak_intensity: { type: number }
+        dominant_emotion: { type: string }
+        pct_joy: { type: number }
+        pct_euphoria: { type: number }
+        pct_outrage: { type: number }
+        pct_anxiety: { type: number }
+        pct_devastation: { type: number }
+        team_a_avg_sentiment: { type: number }
+        team_b_avg_sentiment: { type: number }
+        sentiment_delta: { type: number }
+        momentum_score: { type: number }
+        peak_moment_timestamp: { type: string, format: date-time }
+
+    CityEmotion:
+      type: object
+      properties:
+        city: { type: string }
+        state: { type: string }
+        latitude: { type: number }
+        longitude: { type: number }
+        message_count: { type: integer }
+        avg_intensity: { type: number }
+        dominant_emotion: { type: string }
+        team_a_sentiment: { type: number }
+        team_b_sentiment: { type: number }
+
+    MomentCard:
+      type: object
+      properties:
+        card_id: { type: string }
+        match_id: { type: string }
+        created_at: { type: string, format: date-time }
+        trigger_type: { type: string, enum: [MOMENT_CARD, MOMENTUM_SHIFT, CONTROVERSY, DEAD_CROWD] }
+        spike_multiplier: { type: number }
+        dominant_emotion: { type: string }
+        intensity: { type: number }
+        narrative: { type: string, description: "Gemini-generated 2-sentence summary" }
+        over_number: { type: integer }
+        ball_number: { type: integer }
+
+    WebSocketEvent:
+      type: object
+      properties:
+        event:
+          type: string
+          enum: [EMOTION_PULSE, SPIKE_ALERT, MOMENT_CARD_CREATED, CITY_UPDATE, MOMENTUM_SHIFT, HEARTBEAT]
+        event_id: { type: string }
+        timestamp: { type: number }
+        data: { type: object }
