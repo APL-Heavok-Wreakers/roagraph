@@ -19,6 +19,9 @@ from fastapi import FastAPI, WebSocket, WebSocketDisconnect
 from fastapi.responses import FileResponse
 from fastapi.middleware.cors import CORSMiddleware
 import uvicorn
+from dotenv import load_dotenv
+
+load_dotenv()
 
 from ipl_api import (
     get_current_ipl_matches,
@@ -67,22 +70,22 @@ CITIES = [
 
 # ── Synthetic fallback messages (used when API is unavailable) ───────────────
 SYNTHETIC_MESSAGES = [
-    ("WHAT A SHOT KOHLI 🔥🔥🔥 THIS IS UNREAL!!!",      "euphoria",     0.95),
+    ("WHAT A SHOT RUTURAJ 🔥🔥🔥 THIS IS UNREAL!!!",      "euphoria",     0.95),
     ("SIX!!! MASSIVE SIX INTO THE STANDS!! 💪💪",        "euphoria",     0.92),
     ("Iske baad toh gaya match 😭 no hope left",         "devastation",  0.80),
     ("HOW IS THAT NOT OUT??? UMPIRE IS BLIND 😡",        "outrage",      0.88),
-    ("bumrah aag laga raha hai 🔥 unstoppable",          "joy",          0.85),
+    ("cummins aag laga raha hai 🔥 unstoppable",         "joy",          0.85),
     ("last ball pe 6 chahiye 🙏🙏 cant watch",           "anxiety",      0.90),
     ("CAUGHT!! WHAT A CATCH BY JADEJA!!",                "euphoria",     0.93),
     ("boring cricket yaar dot dot dot 😴",               "neutral",      0.20),
     ("controversy! that was clearly a no ball",          "outrage",      0.82),
     ("yeh match toh gaya 😭😭 devastated",               "devastation",  0.85),
-    ("CENTURY FOR ROHIT!! 💯 HITMAN!!",                  "euphoria",     0.97),
+    ("CENTURY FOR HEAD!! 💯 WHAT A PLAYER!!",            "euphoria",     0.97),
     ("dropped catch HOW DO YOU DROP THAT 🤦",            "outrage",      0.78),
     ("dil dhadak raha hai last over 🫣",                 "anxiety",      0.88),
     ("WICKET! BOWLED HIM!! STUMPS FLYING!!",             "euphoria",     0.94),
     ("good shot but not enough pressure",                "neutral",      0.35),
-    ("come on india we can do this 🇮🇳",               "joy",          0.70),
+    ("come on csk we can do this 💛",                    "joy",          0.70),
     ("what a delivery absolute peach 🍑",               "joy",          0.75),
     ("NO BALL??? CHECK THAT AGAIN REF",                  "outrage",      0.80),
     ("I cant believe what im watching 😱",               "disbelief",    0.90),

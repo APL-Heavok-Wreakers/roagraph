@@ -20,6 +20,9 @@ from datetime import datetime, timezone
 from typing import Optional
 
 import httpx
+from dotenv import load_dotenv
+
+load_dotenv()
 
 logger = logging.getLogger(__name__)
 
@@ -218,17 +221,17 @@ def _get_short_name(team: str) -> str:
 def get_simulated_ipl_match() -> dict:
     """Fallback: return a realistic simulated IPL match."""
     return {
-        "match_id":      "IPL_2026_SIMULATED",
-        "name":          "Mumbai Indians vs Chennai Super Kings",
-        "status":        "Mumbai Indians need 42 runs in 24 balls",
-        "venue":         "Wankhede Stadium, Mumbai",
+        "match_id":      "IPL_2026_MATCH_63",
+        "name":          "Chennai Super Kings vs Sunrisers Hyderabad",
+        "status":        "Sunrisers Hyderabad need 146 runs in 94 balls",
+        "venue":         "MA Chidambaram Stadium, Chennai",
         "match_started": True,
         "match_ended":   False,
-        "team_a":        "Mumbai Indians",
-        "team_b":        "Chennai Super Kings",
-        "team_a_score":  "158/4 (16.0 ov)",
-        "team_b_score":  "199/6 (20.0 ov)",
-        "current_over":  16,
-        "current_ball":  0,
-        "teams_short":   {"team_a": "MI", "team_b": "CSK"},
+        "team_a":        "Chennai Super Kings",
+        "team_b":        "Sunrisers Hyderabad",
+        "team_a_score":  "180/7 (20.0 ov)",
+        "team_b_score":  "35/1 (4.2 ov)",
+        "current_over":  4,
+        "current_ball":  2,
+        "teams_short":   {"team_a": "CSK", "team_b": "SRH"},
     }
