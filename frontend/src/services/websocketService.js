@@ -10,6 +10,11 @@ export class WebSocketService {
   }
 
   connect() {
+    if (this.ws && (this.ws.readyState === WebSocket.CONNECTING || this.ws.readyState === WebSocket.OPEN)) {
+      console.log(`[WebSocket] Already connected or connecting to ${this.url}`);
+      return;
+    }
+
     try {
       this.ws = new WebSocket(this.url);
 

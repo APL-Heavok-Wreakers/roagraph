@@ -1,10 +1,35 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import Dashboard from './pages/Dashboard';
 import NoLiveMatch from './pages/NoLiveMatch';
+import { wsService } from './services/websocketService';
 
 function App() {
   // Toggle this state to simulate whether a live match is currently happening
   const [isLiveMatch, setIsLiveMatch] = useState(false);
+
+  useEffect(() => {
+    // Connect to WebSocket so we can listen to global events (like match going live)
+    wsService.connect();
+
+    // Subscribe to real backend match status changes
+    const unsubMatchStatus = wsService.subscribe('matchStatus', (data) => {
+      if (data && data.status === 'LIVE') {
+        setIsLiveMatch(true);
+      } else {
+        setIsLiveMatch(false);
+      }
+    });
+
+    // DEMONSTRATION: Automatically transition to live match after 12 seconds
+    const demoTimer = setTimeout(() => {
+      setIsLiveMatch(true);
+    }, 12000);
+
+    return () => {
+      unsubMatchStatus();
+      clearTimeout(demoTimer);
+    };
+  }, []);
 
   return (
     <>
